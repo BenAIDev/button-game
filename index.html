@@ -21,6 +21,31 @@
   /* MOBILE */
   body.mobile .btn { flex: 0 0 calc(20% - 10px); padding: 20px; font-size: 22px; }
   body.mobile #container { justify-content: center; }
+
+:root {
+  --btn-size: 60px;
+  --btn-font: 16px;
+  --buttons-per-row: 10;
+}
+
+#buttonContainer {
+  display: grid;
+  grid-template-columns: repeat(var(--buttons-per-row), 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.game-btn, #firstButton {
+  width: var(--btn-size);
+  height: var(--btn-size);
+  font-size: var(--btn-font);
+  border: none;
+  border-radius: 8px;
+  background: #3498db;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -193,6 +218,75 @@ document.getElementById("resetLeaderboard").onclick = async () => {
 
 /* Load leaderboard */
 loadScores();
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const buttonContainer = document.getElementById("buttonContainer");
+  const firstButton = document.getElementById("firstButton");
+
+  let gameStarted = false;
+  let isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+  // Mobile styling
+  function applyMobileStyles() {
+    if (isMobile) {
+      document.documentElement.style.setProperty("--btn-size", "80px");
+      document.documentElement.style.setProperty("--btn-font", "18px");
+      document.documentElement.style.setProperty("--buttons-per-row", "5");
+    } else {
+      document.documentElement.style.setProperty("--btn-size", "60px");
+      document.documentElement.style.setProperty("--btn-font", "16px");
+      document.documentElement.style.setProperty("--buttons-per-row", "10");
+    }
+  }
+  applyMobileStyles();
+
+  // Utility: Random Color
+  function getRandomColor() {
+    return "#" + Math.floor(Math.random() * 16777215).toString(16);
+  }
+
+  // Create a new button
+  function createButton() {
+    const btn = document.createElement("button");
+    btn.className = "game-btn";
+    btn.textContent = "+1";
+    btn.style.backgroundColor = getRandomColor();
+
+    btn.addEventListener("click", () => {
+      btn.disabled = true;
+      btn.style.opacity = "0.6";
+      btn.style.backgroundColor = getRandomColor(); // random color on click
+      createButton();
+      autoScroll();
+    });
+
+    buttonContainer.appendChild(btn);
+  }
+
+  // Auto scroll **smoothly** as new rows appear
+  function autoScroll() {
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth"
+      });
+    });
+  }
+
+  // First button starts game
+  firstButton.addEventListener("click", () => {
+    if (!gameStarted) {
+      gameStarted = true;
+    }
+
+    firstButton.disabled = true;
+    firstButton.style.opacity = "0.6";
+    firstButton.style.backgroundColor = getRandomColor();
+    createButton();
+    autoScroll();
+  });
+});
 </script>
 </body>
 </html>
