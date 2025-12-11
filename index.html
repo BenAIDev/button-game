@@ -163,17 +163,25 @@ function addButton(type = "normal") {
     btn.textContent = "+3 BONUS!";
     btn.style.background = "#ffcc00";
     btn.dataset.bonus = "1";
+
   } else if (type === "trap") {
     const n = Math.floor(Math.random() * 3) + 1;
     btn.textContent = `💣 -${n}`;
     btn.style.background = "#ff4444";
     btn.dataset.trap = n;
+
   } else {
     btn.textContent = "Click me!";
   }
 
-  container.appendChild(btn);
   btn.style.backgroundColor = randomColor();
+  container.appendChild(btn);
+
+  // Smooth autoscroll improvement
+  setTimeout(() => {
+    btn.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, 50);
+}
 
   if (isMobile) {
     btn.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -202,18 +210,20 @@ container.addEventListener("click", e => {
 // Generate next button:
 const r = Math.random();
 
+// 20% → TRAP → must spawn TWO buttons
 if (r < 0.20) {
-    // 20% chance → TRAP
-    addButton(false, true);    // trap
-    addButton(Math.random() < 0.20, false);  // extra button (20% chance bonus)
-} 
+    addButton("trap"); // bomb always
+    addButton(Math.random() < 0.20 ? "bonus" : "normal"); // always add playable button
+}
+
+// 15% → BONUS
 else if (r < 0.35) {
-    // 15% chance → BONUS
-    addButton(true, false);
-} 
+    addButton("bonus");
+}
+
+// 65% → NORMAL
 else {
-    // 65% chance → NORMAL
-    addButton(false, false);
+    addButton("normal");
 }
 });
 
