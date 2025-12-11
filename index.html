@@ -192,19 +192,22 @@ container.addEventListener("click", e => {
   btn.classList.add("clicked");
   btn.style.backgroundColor = randomColor();
 
+  // Score update
   if (btn.dataset.bonus) score += 3;
   else if (btn.dataset.trap) score -= parseInt(btn.dataset.trap);
   else score++;
 
   scoreEl.textContent = score;
 
+  // ALWAYS generate new buttons
   const r = Math.random();
-  if (r < 0.20)
+  if (r < 0.20) {
     addButton("trap");
-  else if (r < 0.35)
+  } else if (r < 0.35) {
     addButton("bonus");
-  else
+  } else {
     addButton("normal");
+  }
 });
 
 /* Restart */
