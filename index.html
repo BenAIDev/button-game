@@ -2,17 +2,24 @@
 <html>
 <head>
 <meta charset="UTF-8" />
-<title>Button Game</title>
+<title>Smooth Button Game</title>
 <style>
   body {
     font-family: Arial, sans-serif;
-    background: #fafafa;
+    background: #f3f3f3;
     margin: 0;
-    padding: 20px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    margin-top: 10px;
+    font-size: 28px;
+    letter-spacing: 1px;
   }
 
   #game-area {
@@ -21,43 +28,88 @@
     gap: 15px;
     justify-content: center;
     width: 100%;
-    max-width: 700px;
+    max-width: 800px;
+    transition: all 0.3s ease;
   }
 
   .game-btn {
     padding: 20px 30px;
     font-size: 18px;
     border: none;
-    border-radius: 12px;
+    border-radius: 16px;
     cursor: pointer;
-    transition: transform 0.1s ease, background 0.3s;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: 
+      transform 0.15s ease,
+      background 0.35s ease,
+      box-shadow 0.25s ease,
+      opacity 0.4s ease;
+    opacity: 0;
+    animation: popIn 0.25s forwards ease-out;
+  }
+
+  .game-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
   }
 
   .game-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.92);
+  }
+
+  /* Smooth pop animation */
+  @keyframes popIn {
+    0% { transform: scale(0.4); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Bomb shake */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    50% { transform: translateX(6px); }
+    75% { transform: translateX(-4px); }
+  }
+
+  /* Trap wiggle */
+  @keyframes wiggle {
+    0%,100%{ transform: rotate(0deg);}
+    25%{ transform: rotate(3deg);}
+    50%{ transform: rotate(-3deg);}
+    75%{ transform: rotate(2deg);}
+  }
+
+  /* Bonus sparkle */
+  @keyframes sparkle {
+    0%{ box-shadow: 0 0 8px 2px gold; }
+    100%{ box-shadow: 0 0 0px 0px gold; }
   }
 
   .bomb {
-    background: black !important;
-    color: white !important;
+    background: #1a1a1a !important;
+    color: #fff !important;
+    animation: shake 0.35s ease-out;
   }
 
   .trap {
-    background: red !important;
-    color: white !important;
+    background: #ff4a4a !important;
+    color: #fff !important;
+    animation: wiggle 0.35s ease-out;
   }
 
   .bonus {
     background: gold !important;
     color: black !important;
     font-weight: bold;
+    animation: sparkle 0.6s ease-out;
   }
 </style>
 </head>
 <body>
 
-<h1>Button Game</h1>
-<button id="startBtn" class="game-btn">Start Game</button>
+<h1>Smooth Button Game</h1>
+<button id="startBtn" class="game-btn" style="opacity:1; animation:none;">Start Game</button>
 
 <div id="game-area"></div>
 
@@ -72,6 +124,13 @@
     return `rgb(${r}, ${g}, ${b})`;
   }
 
+  function autoScrollSmooth() {
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: "smooth"
+    });
+  }
+
   function createButton() {
     const btn = document.createElement("button");
     btn.classList.add("game-btn");
@@ -80,21 +139,47 @@
     btn.addEventListener("click", () => handleButtonClick(btn));
 
     gameArea.appendChild(btn);
+    setTimeout(autoScrollSmooth, 50);
   }
 
   function handleButtonClick(btn) {
-    // Remove previous states
     btn.classList.remove("bomb", "trap", "bonus");
-    btn.style.background = randomColor();
 
-    // Random event generation
+    btn.style.background = randomColor();
+    btn.style.transform = "scale(1.08)";
+    setTimeout(() => btn.style.transform = "scale(1)", 120);
+
     const value = Math.random();
 
     if (value < 0.10) {
       // 💣 Bomb
       btn.textContent = "💣 BOMB!";
       btn.classList.add("bomb");
-      createButton(); // extra button to not get stuck
+      createButton();
 
     } else if (value < 0.20) {
-      // ❌ T
+      // ❌ Trap
+      btn.textContent = "❌ TRAP!";
+      btn.classList.add("trap");
+      createButton();
+
+    } else if (value < 0.30) {
+      // ⭐ Bonus
+      btn.textContent = "⭐ BONUS!";
+      btn.classList.add("bonus");
+      createButton();
+      createButton(); // reward: extra button, feels good!
+
+    } else {
+      btn.textContent = "Click me";
+    }
+  }
+
+  startBtn.addEventListener("click", () => {
+    startBtn.remove();
+    createButton();
+  });
+</script>
+
+</body>
+</html>
