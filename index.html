@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8" />
 <title>Button Click Game — Online Leaderboard</title>
 <style>
@@ -14,6 +15,47 @@
   #leaderboard { margin-top: 20px; text-align: center; width: 320px; }
   #scoresList { text-align: left; padding-left: 18px; }
   #resetLeaderboard { margin-left: 8px; }
+  #container {
+  max-width: 95vw;
+  justify-content: center;
+}
+
+.btn {
+  padding: 16px 24px;
+  font-size: 18px;
+}
+
+@media (max-width: 600px) {
+  body {
+    margin: 10px;
+  }
+
+  #info {
+    flex-direction: column;
+    gap: 10px;
+    font-size: 18px;
+    align-items: center;
+  }
+
+  .btn {
+    width: 100%;
+    max-width: 300px;
+    padding: 18px;
+    font-size: 20px;
+  }
+
+  #container {
+    gap: 8px;
+  }
+
+  #leaderboard {
+    width: 100%;
+  }
+
+  #leaderboard ol {
+    padding-left: 20px;
+  }
+}
 </style>
 </head>
 <body>
