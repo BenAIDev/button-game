@@ -205,7 +205,7 @@ const r = Math.random();
 if (r < 0.20) {
     // 20% chance → TRAP
     addButton(false, true);    // trap
-    addButton(false, false);   // ALWAYS add a normal button
+    addButton(Math.random() < 0.20, false);  // extra button (20% chance bonus)
 } 
 else if (r < 0.35) {
     // 15% chance → BONUS
