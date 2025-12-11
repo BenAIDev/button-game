@@ -1,346 +1,308 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Smooth Button Game — Fixed</title>
-
+<meta charset="UTF-8">
+<title>Button Game</title>
 <style>
-  :root {
-    --max-width: 900px;
-    --gap: 14px;
-  }
+    body {
+        margin: 0;
+        padding: 20px;
+        background: #f6f9fc;
+        font-family: Arial, sans-serif;
+        overflow-x: hidden;
+    }
 
-  html,body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background: #f5f7fa;
-    -webkit-tap-highlight-color: transparent;
-  }
+    h1 {
+        text-align: center;
+        margin-bottom: 10px;
+    }
 
-  body {
-    font-family: system-ui, Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 18px;
-    gap: 16px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+    #gameArea {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
 
-  h1 {
-    margin: 0;
-    font-size: 22px;
-    color: #222;
-  }
+    .btn {
+        padding: 14px 20px;
+        font-size: 18px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.12s ease, background 0.2s ease;
+        user-select: none;
+    }
 
-  /* Info / controls */
-  #controls {
-    width: 100%;
-    max-width: var(--max-width);
-    display:flex;
-    gap:12px;
-    justify-content:flex-start;
-    align-items:center;
-    z-index: 20;                 /* make sure controls are on top */
-    position: relative;
-    pointer-events: auto;
-  }
+    .btn:active {
+        transform: scale(0.85);
+    }
 
-  #controls .control-btn {
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 14px;
-    border: none;
-    cursor: pointer;
-    background: white;
-    box-shadow: 0 6px 18px rgba(20,30,50,0.06);
-  }
+    .bomb {
+        background: #ff4d4d;
+        color: white;
+    }
 
-  /* game area */
-  #game-area {
-    width: 100%;
-    max-width: var(--max-width);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--gap);
-    justify-content: center;
-    padding-bottom: 28px;
-    z-index: 1;
-    position: relative;
-  }
+    .bonus {
+        background: #4CAF50;
+        color: white;
+    }
 
-  /* button */
-  .game-btn {
-    min-width: 110px;
-    padding: 14px 18px;
-    border-radius: 12px;
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    background: linear-gradient(180deg,#ffffff,#efefef);
-    box-shadow: 0 6px 18px rgba(12,20,40,0.06);
-    transition: transform .12s ease, box-shadow .12s ease, background .28s ease;
-    will-change: transform, background;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-  }
+    .disabled {
+        pointer-events: none;
+        opacity: 0.5;
+    }
 
-  .game-btn:active { transform: scale(.97); }
+    #timer, #score {
+        text-align: center;
+        font-size: 22px;
+        margin: 5px;
+    }
 
-  .bomb { background:#111 !important; color: #fff !important; box-shadow: 0 8px 22px rgba(0,0,0,0.16); }
-  .trap { background:#ff5b5b !important; color:#fff !important; box-shadow: 0 8px 22px rgba(255, 50, 50, 0.16); }
-  .bonus { background: linear-gradient(180deg,#fff7d4,#ffd24d) !important; color:#111 !important; box-shadow: 0 8px 22px rgba(200,150,0,0.12); }
+    #leaderboard {
+        margin-top: 20px;
+        padding: 10px;
+        background: white;
+        border-radius: 10px;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
 
-  /* enter animation so new buttons feel organic */
-  @keyframes pop {
-    from { transform: scale(.6); opacity: 0; }
-    to   { transform: scale(1); opacity: 1; }
-  }
-  .game-btn { animation: pop .22s ease both; }
+    #leaderboard h2 {
+        margin: 0;
+        text-align: center;
+    }
 
-  /* mobile tuning */
-  @media (max-width:600px) {
-    .game-btn { min-width: calc(20% - var(--gap)); padding: 16px; font-size: 16px; border-radius: 10px; }
-    #controls { flex-wrap: wrap; gap:8px; }
-  }
+    #restartBtn {
+        margin: 20px auto;
+        display: block;
+        padding: 12px 18px;
+        font-size: 18px;
+        cursor: pointer;
+        border: none;
+        border-radius: 10px;
+        background: #007BFF;
+        color: white;
+    }
 
-  /* debug overlay (hidden normally) */
-  #debugLog {
-    position: fixed; right: 8px; bottom: 8px;
-    background: rgba(0,0,0,0.6); color: white; padding:8px 12px; border-radius:8px;
-    font-size:12px; z-index:9999; display:none;
-  }
+    /* MOBILE SIZE BOOST */
+    @media (max-width: 600px) {
+        .btn {
+            padding: 20px 24px;
+            font-size: 22px;
+        }
+        #gameArea {
+            justify-content: space-between;
+        }
+    }
 </style>
 </head>
+
 <body>
+<h1>Button Game</h1>
+<div id="timer">Timer: 30</div>
+<div id="score">Score: 0</div>
 
-<h1>Smooth Button Game</h1>
+<div id="gameArea"></div>
 
-<div id="controls">
-  <button id="startBtn" class="control-btn">Start</button>
-  <button id="restartBtn" class="control-btn">Restart</button>
-  <button id="clearLeaderboardBtn" class="control-btn">Reset Leaderboard</button>
-  <div style="margin-left:12px;color:#444;font-size:14px;">Score: <span id="score">0</span></div>
-  <div style="margin-left:auto;color:#444;font-size:14px;">Time: <span id="timer">30</span>s</div>
+<button id="restartBtn">Restart</button>
+
+<div id="leaderboard">
+    <h2>Leaderboard</h2>
+    <ul id="leaderboardList"></ul>
 </div>
 
-<div id="game-area" aria-live="polite"></div>
+<!-- FIREBASE -->
+<script type="module">
+/* -----------------------------------------------------
+   🔥 1. SETUP FIREBASE (USE YOUR REAL CONFIG HERE)
+------------------------------------------------------ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy } 
+    from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-<div id="debugLog" aria-hidden="true"></div>
+// ⛔⛔⛔ REPLACE THIS CONFIG WITH YOUR FIREBASE CONFIG ⛔⛔⛔
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_DOMAIN",
+    projectId: "button-game-75748",
+    storageBucket: "button-game-75748.appspot.com",
+    messagingSenderId: "XXXXXXXXXXXX",
+    appId: "XXXXXXXXXXXX"
+};
 
-<!-- Core game script -->
-<script>
-(function () {
-  // Defensive DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  function init() {
-    // Elements
-    const gameArea = document.getElementById('game-area');
-    const startBtn = document.getElementById('startBtn');
-    const restartBtn = document.getElementById('restartBtn');
-    const clearLeaderboardBtn = document.getElementById('clearLeaderboardBtn');
-    const scoreEl = document.getElementById('score');
-    const timerEl = document.getElementById('timer');
-    const debugLog = document.getElementById('debugLog');
+/* -----------------------------------------------------
+   GAME VARIABLES
+------------------------------------------------------ */
+let score = 0;
+let timeLeft = 30;
+let timerStarted = false;
+let timerInterval = null;
 
-    // State
-    let isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile) document.body.classList.add('mobile');
-    let timer = null;
-    let timeLeft = 30;
-    let timerStarted = false;
-    let score = 0;
+const gameArea = document.getElementById("gameArea");
+const scoreDisplay = document.getElementById("score");
+const timerDisplay = document.getElementById("timer");
+const restartBtn = document.getElementById("restartBtn");
+const leaderboardList = document.getElementById("leaderboardList");
 
-    // Safe logger (shows small overlay when started)
-    function logDebug(msg, visible = false) {
-      console.log(msg);
-      debugLog.textContent = msg;
-      if (visible) debugLog.style.display = 'block';
-      else { /* leave hidden by default */ }
+/* -----------------------------------------------------
+   SMOOTH AUTO-SCROLL
+------------------------------------------------------ */
+function smoothScroll() {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+}
+
+/* -----------------------------------------------------
+   RANDOM COLOR
+------------------------------------------------------ */
+function randomColor() {
+    const r = Math.floor(Math.random()*200);
+    const g = Math.floor(Math.random()*200);
+    const b = Math.floor(Math.random()*200);
+    return `rgb(${r},${g},${b})`;
+}
+
+/* -----------------------------------------------------
+   CREATE BUTTON
+------------------------------------------------------ */
+function createButton(forceType = null) {
+    const btn = document.createElement("button");
+    btn.className = "btn";
+    btn.style.background = randomColor();
+
+    let type;
+    if (forceType) {
+        type = forceType;
+    } else {
+        let roll = Math.random();
+        if (roll < 0.20) type = "bomb";
+        else if (roll < 0.30) type = "bonus";
+        else type = "normal";
     }
 
-    // Random color — always fairly bright
-    function randomColor() {
-      const r = 60 + Math.floor(Math.random() * 160);
-      const g = 60 + Math.floor(Math.random() * 160);
-      const b = 60 + Math.floor(Math.random() * 160);
-      return `rgb(${r},${g},${b})`;
+    if (type === "bomb") {
+        btn.textContent = "💣 -2";
+        btn.classList.add("bomb");
+    } 
+    else if (type === "bonus") {
+        btn.textContent = "+3 ⭐";
+        btn.classList.add("bonus");
+    } 
+    else {
+        btn.textContent = "Click!";
     }
 
-    // Scroll into view in a gentle way
-    function smoothScrollTo(elem) {
-      try {
-        elem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      } catch (e) { window.scrollTo(0, document.body.scrollHeight); }
-    }
+    btn.addEventListener("click", () => handleClick(btn, type));
+    gameArea.appendChild(btn);
 
-    // Create a single button of type: 'normal' | 'bonus' | 'trap' | 'bomb'
-    function createButton(type = 'normal') {
-      const btn = document.createElement('button');
-      btn.className = 'game-btn';
-      btn.setAttribute('type','button');
+    smoothScroll();
+}
 
-      // Content + dataset
-      if (type === 'bonus') {
-        btn.textContent = '⭐ BONUS';
-        btn.classList.add('bonus');
-        btn.dataset.type = 'bonus';
-      } else if (type === 'trap') {
-        btn.textContent = '❌ TRAP';
-        btn.classList.add('trap');
-        btn.dataset.type = 'trap';
-      } else if (type === 'bomb') {
-        btn.textContent = '💣 BOMB';
-        btn.classList.add('bomb');
-        btn.dataset.type = 'bomb';
-      } else {
-        btn.textContent = 'Click';
-        btn.dataset.type = 'normal';
-      }
+/* -----------------------------------------------------
+   HANDLE BUTTON CLICK
+------------------------------------------------------ */
+function handleClick(button, type) {
 
-      // style base color
-      btn.style.background = randomColor();
+    if (!timerStarted) startTimer();
+    button.classList.add("disabled");
 
-      // click handler
-      btn.addEventListener('click', () => handleClick(btn));
+    if (type === "bomb") score -= 2;
+    else if (type === "bonus") score += 3;
+    else score++;
 
-      // append and return
-      gameArea.appendChild(btn);
+    scoreDisplay.textContent = "Score: " + score;
 
-      // smooth scroll into view for mobile or if page tall
-      if (isMobile) {
-        setTimeout(() => smoothScrollTo(btn), 40);
-      }
+    // ALWAYS add a new “safe” button so the game continues
+    createButton();
 
-      return btn;
-    }
+    // Refresh color
+    button.style.background = randomColor();
+}
 
-    // Start timer
-    function startTimerOnce() {
-      if (timerStarted) return;
-      timerStarted = true;
-      timer = setInterval(() => {
+/* -----------------------------------------------------
+   TIMER
+------------------------------------------------------ */
+function startTimer() {
+    timerStarted = true;
+    timerInterval = setInterval(() => {
         timeLeft--;
-        timerEl.textContent = timeLeft;
-        if (timeLeft <= 3) timerEl.classList.add('flash');
-        if (timeLeft <= 0) endGame();
-      }, 1000);
+
+        if (timeLeft <= 3) {
+            timerDisplay.style.color = timeLeft % 2 === 0 ? "red" : "black";
+        }
+
+        timerDisplay.textContent = "Timer: " + timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            setTimeout(endGame, 300);
+        }
+    }, 1000);
+}
+
+/* -----------------------------------------------------
+   END GAME
+------------------------------------------------------ */
+async function endGame() {
+    const name = prompt("Game over! Enter your name:");
+    if (name) {
+        await addDoc(collection(db, "leaderboard"), {
+            name: name,
+            score: score,
+            timestamp: Date.now()
+        });
     }
 
-    // End game
-    function endGame() {
-      clearInterval(timer);
-      timerStarted = false;
-      // disable existing buttons
-      document.querySelectorAll('.game-btn').forEach(b => b.disabled = true);
-      // simple prompt for name (you can replace with custom UI)
-      setTimeout(() => {
-        const name = prompt('Game over — enter your name for leaderboard (optional):') || 'Anonymous';
-        // Save score via your backend here if needed
-        logDebug('Game ended. Score saved for ' + name, true);
-      }, 100);
-    }
+    loadLeaderboard();
+}
 
-    // Handle click on any game button
-    function handleClick(btn) {
-      // make sure game is active
-      startTimerOnce();
+/* -----------------------------------------------------
+   LOAD LEADERBOARD
+------------------------------------------------------ */
+async function loadLeaderboard() {
+    leaderboardList.innerHTML = "";
 
-      // prevent double click
-      if (btn.classList.contains('clicked')) return;
-      btn.classList.add('clicked');
+    const q = query(
+        collection(db, "leaderboard"),
+        orderBy("score", "desc")
+    );
 
-      // change color on click to feel organic
-      btn.style.transition = 'background .3s ease';
-      btn.style.background = randomColor();
+    const snap = await getDocs(q);
 
-      // Decide outcome probabilities:
-      // bomb 10%, trap 10%, bonus 10%, normal 70%
-      const v = Math.random();
-      if (v < 0.10) {
-        // bomb
-        btn.textContent = '💣 BOMB';
-        btn.classList.remove('trap','bonus');
-        btn.classList.add('bomb');
-        score = Math.max(0, score - 1);
-        // when bomb appears, spawn an extra playable button (normal or bonus)
-        createButton(Math.random() < 0.20 ? 'bonus' : 'normal');
-      } else if (v < 0.20) {
-        // trap
-        btn.textContent = '❌ TRAP';
-        btn.classList.remove('bomb','bonus');
-        btn.classList.add('trap');
-        score = Math.max(0, score - 1);
-        // spawn an extra playable button
-        createButton(Math.random() < 0.20 ? 'bonus' : 'normal');
-      } else if (v < 0.30) {
-        // bonus
-        btn.textContent = '⭐ BONUS';
-        btn.classList.remove('bomb','trap');
-        btn.classList.add('bonus');
-        score += 3;
-        // reward with an extra button as well
-        createButton('normal');
-      } else {
-        // normal
-        btn.textContent = 'Click';
-        score += 1;
-      }
-
-      // update score UI
-      scoreEl.textContent = score;
-    }
-
-    // Attach control handlers
-    startBtn.addEventListener('click', () => {
-      startBtn.disabled = true;
-      startBtn.style.opacity = 0.6;
-      // create first set of buttons (1 initial)
-      createButton('normal');
-      logDebug('Game started', false);
+    snap.forEach(doc => {
+        const li = document.createElement("li");
+        li.textContent = `${doc.data().name}: ${doc.data().score}`;
+        leaderboardList.appendChild(li);
     });
+}
 
-    restartBtn.addEventListener('click', () => {
-      // reset state
-      clearInterval(timer);
-      timerStarted = false;
-      timeLeft = 30;
-      timerEl.textContent = timeLeft;
-      score = 0;
-      scoreEl.textContent = 0;
-      // clear buttons
-      gameArea.innerHTML = '';
-      startBtn.disabled = false;
-      startBtn.style.opacity = 1;
-      logDebug('Game reset', false);
-    });
+/* -----------------------------------------------------
+   RESTART
+------------------------------------------------------ */
+restartBtn.addEventListener("click", () => {
+    score = 0;
+    timeLeft = 30;
+    timerStarted = false;
 
-    clearLeaderboardBtn.addEventListener('click', () => {
-      if (!confirm('Clear leaderboard stored online?')) return;
-      // Placeholder — call backend to clear if you have one
-      logDebug('Leaderboard cleared (client placeholder)', true);
-    });
+    scoreDisplay.textContent = "Score: 0";
+    timerDisplay.textContent = "Timer: 30";
+    timerDisplay.style.color = "black";
 
-    // defensive: click anywhere on page shows console hint if buttons not responding
-    document.addEventListener('click', () => {
-      // no-op: used for debugging if user says clicks do nothing
-    });
+    gameArea.innerHTML = "";
+    createButton();
+});
 
-    // initialize UI values
-    timerEl.textContent = timeLeft;
-    scoreEl.textContent = score;
-    logDebug('Ready — DOM loaded', false);
-  } // init end
-})(); // IIFE end
+/* -----------------------------------------------------
+   START WITH ONE BUTTON
+------------------------------------------------------ */
+createButton();
+loadLeaderboard();
+
 </script>
 </body>
 </html>
